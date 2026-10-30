@@ -6,10 +6,10 @@ inputs:
     description: Existing GitHub Release tag to attach the cache to
     required: true
   token:
-    description: GitHub token with contents write permission
+    description: GitHub token with contents write permission for uploading assets and publishing the flake branch
     default: ${{ github.token }}
   repository:
-    description: Repository containing the release
+    description: Repository containing the release and flake branch, in owner/repo form
     default: ${{ github.repository }}
   artifact-name:
     description: Cache artifact produced by the root action

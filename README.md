@@ -80,13 +80,11 @@ Create the release in the caller so it can include other platform binaries, rele
 | Input | Default | Description |
 | --- | --- | --- |
 | `tag` | Required | Existing release tag. |
-| `token` | `${{ github.token }}` | Token with contents write permission on the target repository. |
-| `repository` | `${{ github.repository }}` | Target release/flake repository, in `owner/repo` form. |
+| `token` | `${{ github.token }}` | Token with contents write permission for uploading assets and publishing the flake branch. |
+| `repository` | `${{ github.repository }}` | Repository containing the release and flake branch, in `owner/repo` form. |
 | `artifact-name` | `nix-cache` | Cache artifact from the current workflow run. |
 | `flake-directory` | Empty (disabled) | Prepared flake directory to publish, without a `.git` directory. |
 | `flake-branch` | `flakes` | Branch to publish the flake to. |
-
-For a custom GitHub Enterprise hostname, configure `GH_HOST` for the GitHub CLI as usual.
 
 ### Release flake branch
 
@@ -106,7 +104,7 @@ Prepare a self-contained flake directory in the caller. For a split build/publis
 
 Flake preparation is project-specific: include the flake, lock file, package/module expressions, and any evaluation-time metadata. If it fetches source code, pin the source revision and hash before building. Build from this prepared flake so consumers evaluate the same derivation that produced the cached output.
 
-Publication makes a commit containing exactly the prepared directory, preserving the previous branch tip as its parent. The branch is created if absent. Pushes are fast-forward only. Serialize release jobs in the caller to avoid concurrent publications:
+Publication uses the `repository` and `token` inputs for both release uploads and flake branch publication. It makes a commit containing exactly the prepared directory, preserving the previous branch tip as its parent. The branch is created if absent. Pushes are fast-forward only. Serialize release jobs in the caller to avoid concurrent publications:
 
 ```yaml
 concurrency:

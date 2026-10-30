@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${NSR_PRIVATE_KEY:?private-key is required}"
-: "${NSR_PUBLIC_KEY:?public-key is required}"
-
+# Prepare
 directory=$(realpath -m -- "$NSR_CACHE_DIRECTORY")
 store_path=$(readlink -f -- "$NSR_STORE_PATH")
 store_name=$(basename -- "$store_path")
@@ -15,16 +13,19 @@ chmod 600 "$signing_key"
 printf '%s\n' "$NSR_PRIVATE_KEY" > "$signing_key"
 mkdir -p -- "$directory"
 
+# Sign
 nix store sign --key-file "$signing_key" "$store_path"
 nix store verify --sigs-needed 1 --option trusted-public-keys "$NSR_PUBLIC_KEY" "$store_path"
 
+# Archive
 archive_path="$directory/$store_hash.nar.zst"
 nix store dump-path "$store_path" | zstd -T0 -q > "$archive_path"
 
+# Write info
 path_info=$(nix path-info --json --sigs "$store_path")
 nar_hash=$(nix hash convert --to nix32 "$(jq -r '.[] | .narHash' <<< "$path_info")")
 file_hash=$(nix hash file --type sha256 --base32 "$archive_path")
-file_size=$(wc -c < "$archive_path" | tr -d '[:space:]')
+file_size=$(stat -c %s "$archive_path")
 
 jq -r \
   --arg path "$store_path" \
