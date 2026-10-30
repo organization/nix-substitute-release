@@ -1,6 +1,6 @@
 name: Nix substitute release
 description: Sign a Nix store output and export a GitHub Release-compatible binary cache artifact
-author: HelloWorld017
+author: nenw*
 branding:
   icon: package
   color: blue

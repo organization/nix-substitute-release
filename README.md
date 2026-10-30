@@ -4,8 +4,8 @@ Publish signed Nix binary substitutes as GitHub Release assets, without a separa
 
 This repository provides two composite GitHub Actions:
 
-- `HelloWorld017/nix-substitute-release@v1`: sign one built store output, export its NAR and narinfo, and upload a workflow artifact.
-- `HelloWorld017/nix-substitute-release/publish@v1`: download that artifact and attach it to an existing GitHub Release. Optionally publish a prepared release flake to a branch.
+- `organization/nix-substitute-release@v1`: sign one built store output, export its NAR and narinfo, and upload a workflow artifact.
+- `organization/nix-substitute-release/publish@v1`: download that artifact and attach it to an existing GitHub Release. Optionally publish a prepared release flake to a branch.
 
 ## Build
 
@@ -14,7 +14,7 @@ Use a Linux runner with Nix (`nix-command` and `flakes` enabled), `jq`, and `zst
 ```yaml
 - run: nix build .#my-package
 
-- uses: HelloWorld017/nix-substitute-release@v1
+- uses: organization/nix-substitute-release@v1
   with:
     private-key: ${{ secrets.NIX_CACHE_PRIVATE_KEY }}
     public-key: ${{ vars.NIX_CACHE_PUBLIC_KEY }}
@@ -62,7 +62,7 @@ steps:
       TAG: ${{ github.ref_name }}
     run: gh release create "$TAG" --draft --generate-notes
 
-  - uses: HelloWorld017/nix-substitute-release/publish@v1
+  - uses: organization/nix-substitute-release/publish@v1
     with:
       tag: ${{ github.ref_name }}
 
@@ -98,7 +98,7 @@ Prepare a self-contained flake directory in the caller. For a split build/publis
     name: nix-flake
     path: flakes
 
-- uses: HelloWorld017/nix-substitute-release/publish@v1
+- uses: organization/nix-substitute-release/publish@v1
   with:
     tag: ${{ github.ref_name }}
     flake-directory: flakes
