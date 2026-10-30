@@ -1,0 +1,50 @@
+name: Nix substitute release
+description: Sign a Nix store output and export a GitHub Release-compatible binary cache artifact
+author: HelloWorld017
+branding:
+  icon: package
+  color: blue
+
+inputs:
+  store-path:
+    description: Store path or symlink to the built output
+    default: result
+  private-key:
+    description: Nix binary cache signing key (pass a GitHub Actions secret)
+    required: true
+  public-key:
+    description: Matching Nix binary cache public key
+    required: true
+  cache-directory:
+    description: Directory for the exported cache files
+    default: cache
+  artifact-name:
+    description: Name of the uploaded cache artifact
+    default: nix-cache
+
+outputs:
+  cache-directory:
+    description: Absolute path to the exported cache directory
+    value: ${{ steps.export.outputs.cache-directory }}
+  store-path:
+    description: Resolved Nix store path
+    value: ${{ steps.export.outputs.store-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Export signed Nix cache
+      id: export
+      shell: bash
+      env:
+        NSR_STORE_PATH: ${{ inputs.store-path }}
+        NSR_PRIVATE_KEY: ${{ inputs.private-key }}
+        NSR_PUBLIC_KEY: ${{ inputs.public-key }}
+        NSR_CACHE_DIRECTORY: ${{ inputs.cache-directory }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/export.sh"
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.artifact-name }}
+        if-no-files-found: error
+        path: ${{ steps.export.outputs.cache-directory }}/*
