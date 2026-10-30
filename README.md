@@ -104,7 +104,7 @@ Prepare a self-contained flake directory in the caller. For a split build/publis
 
 Flake preparation is project-specific: include the flake, lock file, package/module expressions, and any evaluation-time metadata. If it fetches source code, pin the source revision and hash before building. Build from this prepared flake so consumers evaluate the same derivation that produced the cached output.
 
-Publication uses the `repository` and `token` inputs for both release uploads and flake branch publication. It makes a commit containing exactly the prepared directory, preserving the previous branch tip as its parent. The branch is created if absent. Pushes are fast-forward only. Serialize release jobs in the caller to avoid concurrent publications:
+Publication uses the `repository` and `token` inputs for both release uploads and flake publication. It makes a commit containing exactly the prepared directory, preserving the previous branch tip as its parent. The branch is created if absent. The same commit is also published as `flakes-v[version]`: release tags `v1.2.3` and `1.2.3` both produce `flakes-v1.2.3`. The branch and tag are pushed atomically; existing tags are not overwritten. Branch pushes are fast-forward only. Serialize release jobs in the caller to avoid concurrent publications:
 
 ```yaml
 concurrency:
@@ -123,4 +123,4 @@ nix.settings = {
 
 For a specific release, use `https://github.com/ORGANIZATION/REPOSITORY/releases/download/v1.2.3`. `latest` follows GitHub's latest stable release; prereleases should use an explicit tag URL.
 
-If publishing a release flake branch, consumers can use `github:ORGANIZATION/REPOSITORY/flakes`. Overrides of the flake's inputs can change the output store path and cause a cache miss.
+If publishing a release flake branch, consumers can use `github:ORGANIZATION/REPOSITORY/flakes`, or pin a version with `github:ORGANIZATION/REPOSITORY/flakes-v1.2.3`. Overrides of the flake's inputs can change the output store path and cause a cache miss.

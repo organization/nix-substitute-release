@@ -1,5 +1,5 @@
 name: Publish Nix substitute release
-description: Upload a Nix cache artifact to an existing release and optionally publish a release flake branch
+description: Upload a Nix cache artifact to an existing release and optionally publish a release flake branch and version tag
 
 inputs:
   tag:
@@ -39,7 +39,7 @@ runs:
       run: |
         gh release upload "$NSR_TAG" "$NSR_CACHE_DIRECTORY"/* --clobber
 
-    - name: Publish release flake branch
+    - name: Publish release flake branch and tag
       if: inputs.flake-directory != ''
       shell: bash
       env:

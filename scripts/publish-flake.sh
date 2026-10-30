@@ -21,6 +21,7 @@ export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
 export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
 
 commit=$(git -C "$directory" commit-tree "$tree" "${parent[@]}" -m "Release $NSR_TAG")
+flake_tag="flakes-v${NSR_TAG#v}"
 
 git -C "$directory" -c credential.helper= -c 'credential.helper=!gh auth git-credential' \
-  push "$repository" "$commit:refs/heads/$NSR_FLAKE_BRANCH"
+  push --atomic "$repository" "$commit:refs/heads/$NSR_FLAKE_BRANCH" "$commit:refs/tags/$flake_tag"
